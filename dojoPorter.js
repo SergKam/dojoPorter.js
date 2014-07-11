@@ -2,8 +2,8 @@
  * Created by sergkam on 10.07.14.
  */
 var fs = require("fs");
-var fileName = process.argv[2]; //'./dcd/Graph/LoadBalancer.js',
-var outputName = process.argv[3] || fileName; //'./dcd/Graph/LoadBalancer.js',
+var fileName = process.argv[2]; 
+var outputName = process.argv[3] || fileName;
 
 if (!fileName) {
     console.log('\nThis script change the old namespace approach to new one, module orientated. ');
@@ -12,7 +12,6 @@ if (!fileName) {
     console.log('Usage: node ' + process.argv[1] + ' inputfile.js [output.js]\n');
     return 0;
 }
-
 
 if (!fs.existsSync(fileName)) {
     console.log('\nFile not found:' + filename);
@@ -43,13 +42,10 @@ if (paramsFromMod !== paramsOldStr) {
     console.log(paramsFromMod);
     console.log(paramsOldStr);
     return;
-
 }
 
 //cutting define block
 text = text.replace(defineRegexp, '{DEFINE}');
-
-//console.log(defineRegexp.exec(text));
 
 var lines = text.split('\n');
 
@@ -73,8 +69,6 @@ lines.forEach(function (line, i) {
     if (dependency.indexOf(depMod) == -1) {
         dependency.push(depMod);
     }
-
-
 });
 
 if (!isFound) {
@@ -84,19 +78,22 @@ if (!isFound) {
 
 dependency.sort();
 params = modulesToParams(dependency);
-
+//making new define
 var newDefine = 'define([\n    ' + dependency.join(',\n    ') + '\n], function(\n    ' + params.join(',\n    ') + '\n) {';
+
+//insert it
 out = out.join('\n').replace('{DEFINE}', newDefine);
-//console.log(out);
 
 fs.writeFileSync(outputName, out);
 
-
 //------------ fn
+
 function modulesToParams(modulesList) {
     var params = [];
+    
     modulesList.forEach(function (dep) {
-        params.push(dep.replace(/[\w|_|/|.](.*)\//g, '').replace(/"/g, ""));
+        params.push(dep.replace(/[\w|_|/|.](.*)\//g, '').replace(/[\"|\']/g, ""));
     });
+    
     return params;
 }
