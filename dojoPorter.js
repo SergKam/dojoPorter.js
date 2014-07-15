@@ -90,9 +90,25 @@ fs.writeFileSync(outputName, out);
 
 function modulesToParams(modulesList) {
     var params = [];
-    
+    var nicks = {
+      uuid: 'uuidGen'
+    };
+
     modulesList.forEach(function (dep) {
-        params.push(dep.replace(/[\w|_|/|.](.*)\//g, '').replace(/[\"|\']/g, ""));
+        var modName = dep
+            .replace(/(\!.*)/g, '')           //remove !////
+            .replace(/(\/\/.*)/g, '')           // remove last comments
+            .replace(/[\w|_|/|.](.*)\//g, '') //remove path
+            .replace(/"/g, "");                //remove "
+            
+        if(!modName) {
+          return true;
+        }
+
+        if(nicks[modName]){
+            modName = nicks[modName];
+        }
+        params.push(modName);
     });
     
     return params;
